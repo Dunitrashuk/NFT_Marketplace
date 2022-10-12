@@ -1,20 +1,15 @@
 const mongoose = require("mongoose");
 const express = require("express");
 const cors = require("cors");
-const bodyParser = require('body-parser')
-const signUpRoute = require('./routes/signUp');
-const signInRoute = require('./routes/signIn');
-const usersRoute = require('./routes/usersRoute');
+const bodyParser = require('body-parser');
+const nftsRoute = require('./routes/nftsRoute');
 
 const app = express();
 require("dotenv").config();
 app.use(bodyParser.json());
 
 //ENDPOINTS
-app.use('/signUp', signUpRoute);
-app.use('/signIn', signInRoute);
-app.use('/users', usersRoute);
-
+app.use('/nfts', nftsRoute);
 
 // DB connection
 async function connect() {
@@ -27,11 +22,6 @@ async function connect() {
 }
 
 connect();
-
-const port = process.env.PORT;
-
-app.listen(port, () => {
-    console.log(`User Service is running on port ${port}`);
-})
-
-
+app.listen(process.env.PORT, () => {
+    console.log(`Product Service is running on port ${process.env.PORT}`);
+});

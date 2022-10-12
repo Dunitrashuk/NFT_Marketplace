@@ -8,7 +8,12 @@ const UserSchema = mongoose.Schema({
     funds: {
         type: String,
         required: true
-    }
+    },
+    "nfts": [
+        {
+            name: String
+        }
+    ]
 })
 
 module.exports = mongoose.model('User', UserSchema);

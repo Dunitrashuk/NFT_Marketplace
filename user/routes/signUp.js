@@ -2,21 +2,25 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
-router.get('/', (req, res) => {
-    res.send('Sign Up');
-});
 
 router.post('/', async (req, res) => {
+
+    //Check if username already exists
+    const usernameExists = await User.findOne({ username: req.body.username });
+    if (usernameExists) return res.status(400).send('Username already exists!');
+
+    // Create and save user to DB
     const user = new User({
         username: req.body.username,
-        funds: req.body.funds
+        funds: req.body.funds,
+        nfts: req.body.nfts
     });
 
     try {
-        const savedUser = user.save();
+        const savedUser = await user.save();
         res.json(savedUser);
-    } catch {
-        res.json({ message: err });
+    } catch (err) {
+        res.status(400).send(err);
     }
 })
 

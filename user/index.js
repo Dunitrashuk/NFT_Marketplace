@@ -1,10 +1,36 @@
-const express = require('express')
-const app = express();
+const mongoose = require("mongoose");
+const express = require("express");
+const app = express()
+const cors = require("cors");
+const bodyParser = require('body-parser')
+const userInfoRoute = require('./routes/userInfo');
+const signUpRoute = require('./routes/signUp');
+const getUsersRoute = require('./routes/getUsers')
+require("dotenv").config();
 
-app.use(express.json());
-app.use('/', (req, res, next) => {
-    return res.status(200).json({ "msg": "Hello from User" })
+app.use(bodyParser.json());
+
+//ENDPOINTS
+app.use('/userInfo', userInfoRoute);
+app.use('/signUp', signUpRoute);
+app.use('/getUsers', getUsersRoute);
+
+// DB connection
+async function connect() {
+    try {
+        await mongoose.connect(process.env.MONGODB_URI);
+        console.log("Connected to DB!");
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+connect();
+
+const port = process.env.PORT;
+
+app.listen(port, () => {
+    console.log(`User Service is running on port ${port}`);
 })
-app.listen(8001, () => {
-    console.log('User Service is Listening to port 8001')
-})
+
+

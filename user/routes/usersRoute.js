@@ -24,14 +24,4 @@ router.get('/:username', verify, async (req, res) => {
     });
 })
 
-//ENDPOINT /users/:username  
-router.patch('/:username', verify, async (req, res) => {
-    User.findOne({ username: new RegExp('^' + req.params.username + '$', "i") }, (err, doc) => {
-        if (err)
-            res.send(err);
-        else {
-            res.json(doc)
-        }
-    });
-})
 module.exports = router;

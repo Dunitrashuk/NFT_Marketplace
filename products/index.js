@@ -3,12 +3,17 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require('body-parser');
 const nftsRoute = require('./routes/nftsRoute');
+const userRoute = require('./routes/userRoute');
+const morganBody = require('morgan-body');
 
 const app = express();
 require("dotenv").config();
 app.use(bodyParser.json());
+morganBody(app);
+
 
 //ENDPOINTS
+app.use('/users', userRoute);
 app.use('/nfts', nftsRoute);
 
 // DB connection

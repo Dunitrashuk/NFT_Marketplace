@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Nft = require('../models/Nft');
+const verify = require('./verifyToken');
 
 // ENDPOINT /nfts
-router.get('/', async (req, res) => {
+router.get('/', verify, async (req, res) => {
     try {
         const nfts = await Nft.find();
         res.json(nfts);
@@ -13,7 +14,7 @@ router.get('/', async (req, res) => {
 });
 
 //ENDPOINT /nfts/sellNft
-router.post('/sellNft', async (req, res) => {
+router.post('/listNft', verify, async (req, res) => {
     const nft = new Nft({
         name: req.body.name,
         owner: req.body.owner,
@@ -22,6 +23,7 @@ router.post('/sellNft', async (req, res) => {
 
     try {
         const savedNft = await nft.save();
+
         res.json(savedNft);
     } catch (err) {
         res.status(400).send(err);

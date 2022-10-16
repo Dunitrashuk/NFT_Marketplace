@@ -8,7 +8,6 @@ const NftSchema = mongoose.Schema({
 
     owner: {
         type: String,
-        required: true
     },
 
     price: {

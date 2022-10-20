@@ -5,6 +5,7 @@ const bodyParser = require('body-parser')
 const signUpRoute = require('./routes/signUp');
 const signInRoute = require('./routes/signIn');
 const usersRoute = require('./routes/usersRoute');
+const statusRoute = require('./routes/statusRoute');
 
 const app = express();
 require("dotenv").config();
@@ -14,6 +15,7 @@ app.use(bodyParser.json());
 app.use('/signUp', signUpRoute);
 app.use('/signIn', signInRoute);
 app.use('/users', usersRoute);
+app.use('/status', statusRoute);
 
 
 // DB connection

@@ -17,24 +17,39 @@ router.get('/', verify, async (req, res) => {
 
 //ENDPOINT /nfts/listNft
 router.post('/listNft', verify, async (req, res) => {
+    let user = await User.findOne({ username: req.headers['username'] });
+    let userNft = user.nfts.find((nft) => {
+        return nft._id == req.body._id
+    });
+
+    console.log(typeof user.nfts[0]._id.toString());
+    console.log(typeof req.body._id);
+
+    let nftsList = await user.nfts.filter(nft => {
+        return nft._id.toString() !== req.body._id
+    });
+
+    console.log(nftsList);
+
 
     //place nft in nfts list
     const nft = new Nft({
-        name: req.body.name,
-        owner: req.body.owner,
+        name: userNft.name,
+        owner: user.username,
         price: req.body.price
     });
 
     try {
-        const savedNft = await nft.save();
-
         //remove nft from user list
-        //???
-
+        User.findOneAndUpdate({ username: user.username }, { nfts: nftsList }, (err, data) => {
+            if (err) {
+                res.status(500).json({ message: "Unable to update nfts list!" });
+            }
+        });
 
         // save nfts list to cache
         //???
-
+        const savedNft = await nft.save();
 
         res.json(savedNft);
     } catch (err) {
@@ -47,7 +62,7 @@ router.get('/buyNft', verify, async (req, res) => {
     let funds
     let user = await User.findOne({ username: req.headers["username"] });
     let nft = await Nft.findOne({ _id: req.body._id });
-    let owner = await User.findOne({ owner: nft.owner });
+    let owner = await User.findOne({ username: nft.owner });
     let userFunds = parseInt(user.funds.split(" ")[0]);
     let ownerFunds = parseInt(owner.funds.split(" ")[0]);
     let nftPrice = parseInt(nft.price);
@@ -63,6 +78,16 @@ router.get('/buyNft', verify, async (req, res) => {
         user.funds = (userFunds - nftPrice) + " ETH";
         owner.funds = (ownerFunds + nftPrice) + " ETH";
 
+
+        if (owner !== null) {
+            //update owner funds
+            User.findOneAndUpdate({ username: owner.username }, { funds: owner.funds }, (err, data) => {
+                if (err) {
+                    res.status(500).json({ message: "Unable to update owner info!" });
+                }
+            });
+        }
+
         // add nft to user
         User.findOneAndUpdate({ username: user.username }, { funds: user.funds, nfts: user.nfts }, (err, data) => {
             if (err) {
@@ -70,12 +95,7 @@ router.get('/buyNft', verify, async (req, res) => {
             }
         });
 
-        //update owner funds
-        User.findOneAndUpdate({ username: nft.owner }, { funds: owner.funds }, (err, data) => {
-            if (err) {
-                res.status(500).json({ message: "Unable to update owner info!" });
-            }
-        });
+
 
         //remove nft from nfts list
         Nft.findOneAndDelete({ _id: nft._id }, (err, data) => {

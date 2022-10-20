@@ -4,7 +4,9 @@ const cors = require("cors");
 const bodyParser = require('body-parser');
 const nftsRoute = require('./routes/nftsRoute');
 const userRoute = require('./routes/userRoute');
+const statusRoute = require('./routes/statusRoute');
 const morganBody = require('morgan-body');
+let processedRequests
 
 const app = express();
 require("dotenv").config();
@@ -15,6 +17,7 @@ morganBody(app);
 //ENDPOINTS
 app.use('/users', userRoute);
 app.use('/nfts', nftsRoute);
+app.use('/status', statusRoute);
 
 // DB connection
 async function connect() {
@@ -29,4 +32,5 @@ async function connect() {
 connect();
 app.listen(process.env.PORT, () => {
     console.log(`Product Service is running on port ${process.env.PORT}`);
+
 });

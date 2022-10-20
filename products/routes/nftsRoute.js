@@ -13,6 +13,7 @@ router.get('/', verify, async (req, res) => {
     } catch (err) {
         res.json({ message: err });
     }
+    process.env.PROCESSED_REQUESTS += 1;
 });
 
 //ENDPOINT /nfts/listNft
@@ -55,10 +56,12 @@ router.post('/listNft', verify, async (req, res) => {
     } catch (err) {
         res.status(400).send(err);
     }
+    process.env.PROCESSED_REQUESTS += 1;
 });
 
 //ENDPOINT /nfts/buyNft
 router.get('/buyNft', verify, async (req, res) => {
+
     let funds
     let user = await User.findOne({ username: req.headers["username"] });
     let nft = await Nft.findOne({ _id: req.body._id });
@@ -104,7 +107,9 @@ router.get('/buyNft', verify, async (req, res) => {
             }
             res.json(data);
         });
+
     }
+    process.env.PROCESSED_REQUESTS += 1;
 })
 
 module.exports = router;

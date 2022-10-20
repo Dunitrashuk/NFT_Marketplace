@@ -11,6 +11,7 @@ router.get('/', async (req, res) => {
     } catch (err) {
         res.json({ message: err });
     }
+    process.env.PROCESSED_REQUESTS += 1;
 });
 
 
@@ -31,11 +32,7 @@ router.post('/addUser', async (req, res) => {
     } catch (err) {
         res.status(400).send({ error: err });
     }
+    process.env.PROCESSED_REQUESTS += 1;
 });
-
-//ENDPOINT /user/:client_id
-router.get('/:client_id', async (req, res) => {
-
-})
 
 module.exports = router;

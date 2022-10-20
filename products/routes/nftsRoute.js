@@ -23,8 +23,6 @@ router.post('/listNft', verify, async (req, res) => {
         return nft._id == req.body._id
     });
 
-    console.log(typeof user.nfts[0]._id.toString());
-    console.log(typeof req.body._id);
 
     let nftsList = await user.nfts.filter(nft => {
         return nft._id.toString() !== req.body._id
@@ -62,12 +60,10 @@ router.post('/listNft', verify, async (req, res) => {
 //ENDPOINT /nfts/buyNft
 router.get('/buyNft', verify, async (req, res) => {
 
-    let funds
     let user = await User.findOne({ username: req.headers["username"] });
     let nft = await Nft.findOne({ _id: req.body._id });
     let owner = await User.findOne({ username: nft.owner });
     let userFunds = parseInt(user.funds.split(" ")[0]);
-    let ownerFunds = parseInt(owner.funds.split(" ")[0]);
     let nftPrice = parseInt(nft.price);
 
 
@@ -79,10 +75,12 @@ router.get('/buyNft', verify, async (req, res) => {
         nft.owner = user.username;
         user.nfts.push(nft);
         user.funds = (userFunds - nftPrice) + " ETH";
-        owner.funds = (ownerFunds + nftPrice) + " ETH";
-
 
         if (owner !== null) {
+
+            let ownerFunds = parseInt(owner.funds.split(" ")[0]);
+            owner.funds = (ownerFunds + nftPrice) + " ETH";
+
             //update owner funds
             User.findOneAndUpdate({ username: owner.username }, { funds: owner.funds }, (err, data) => {
                 if (err) {

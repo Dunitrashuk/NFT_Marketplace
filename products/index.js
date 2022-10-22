@@ -6,9 +6,8 @@ const nftsRoute = require('./routes/nftsRoute');
 const userRoute = require('./routes/userRoute');
 const statusRoute = require('./routes/statusRoute');
 const morganBody = require('morgan-body');
-let processedRequests
-
 const app = express();
+
 require("dotenv").config();
 app.use(bodyParser.json());
 morganBody(app);

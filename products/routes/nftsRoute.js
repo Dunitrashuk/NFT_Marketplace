@@ -2,13 +2,19 @@ const express = require('express');
 const router = express.Router();
 const Nft = require('../models/Nft');
 const User = require('../models/User');
-const verify = require('./verifyToken');
+const verify = require('../middlewares/verifyToken');
+const cache = require('../middlewares/cache');
 const axios = require('axios');
+const Redis = require('redis');
+
+const redisClient = Redis.createClient();
+
 
 // ENDPOINT /nfts
-router.get('/', verify, async (req, res) => {
+router.get('/', cache, async (req, res) => {
     try {
         const nfts = await Nft.find();
+        redisClient.setex("nfts", 600, JSON.stringify(nfts));
         res.json(nfts);
     } catch (err) {
         res.json({ message: err });
@@ -28,8 +34,6 @@ router.post('/listNft', verify, async (req, res) => {
         return nft._id.toString() !== req.body._id
     });
 
-    console.log(nftsList);
-
 
     //place nft in nfts list
     const nft = new Nft({
@@ -46,14 +50,17 @@ router.post('/listNft', verify, async (req, res) => {
             }
         });
 
-        // save nfts list to cache
-        //???
         const savedNft = await nft.save();
+
+        // save nfts list to cache
+        const nfts = await Nft.find();
+        redisClient.setex("nfts", 600, JSON.stringify(nfts));
 
         res.json(savedNft);
     } catch (err) {
         res.status(400).send(err);
     }
+
     process.env.PROCESSED_REQUESTS += 1;
 });
 
@@ -70,6 +77,8 @@ router.get('/buyNft', verify, async (req, res) => {
     //check if user has enough funds
     if (userFunds < nftPrice) {
         res.json({ message: "Not enough funds!" })
+    } else if (user.username === owner.username) {
+        res.json({ message: "Cannot buy your own NFT!" });
     } else {
 
         nft.owner = user.username;
@@ -103,9 +112,13 @@ router.get('/buyNft', verify, async (req, res) => {
             if (err) {
                 res.status(500).json({ message: "Unable to remove nft from list!" });
             }
-            res.json(data);
+            res.json(nft);
         });
 
+        // add updated nfts list to cache
+        // some weird problem happens here, need to fix it later
+        const nfts = await Nft.find();
+        redisClient.setex("nfts", 600, JSON.stringify(nfts));
     }
     process.env.PROCESSED_REQUESTS += 1;
 })

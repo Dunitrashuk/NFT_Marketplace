@@ -1,5 +1,5 @@
 ﻿# System Design
-![alt text](https://github.com/Dunitrashuk/PAD_Lab1/System_Design.png?raw=true)
+![alt text](https://github.com/Dunitrashuk/PAD_Lab1/blob/main/System_Design.png)
 
 # FAF.PAD16.2 Autumn 2022
 

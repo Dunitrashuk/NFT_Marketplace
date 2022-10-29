@@ -77,8 +77,8 @@ router.get('/buyNft', verify, async (req, res) => {
     //check if user has enough funds
     if (userFunds < nftPrice) {
         res.json({ message: "Not enough funds!" })
-    } else if (user.username === owner.username) {
-        res.json({ message: "Cannot buy your own NFT!" });
+        // } else if (user.username === owner.username) {
+        //     res.json({ message: "Cannot buy your own NFT!" });
     } else {
 
         nft.owner = user.username;
@@ -108,19 +108,25 @@ router.get('/buyNft', verify, async (req, res) => {
 
 
         //remove nft from nfts list
-        Nft.findOneAndDelete({ _id: nft._id }, (err, data) => {
-            if (err) {
-                res.status(500).json({ message: "Unable to remove nft from list!" });
-            }
-            res.json(nft);
-        });
+        await axios.delete(`http://localhost:8000/nftsService/nfts/${req.body._id}`);
 
         // add updated nfts list to cache
-        // some weird problem happens here, need to fix it later
+        // some weird problem happens here, n eed to fix it later
+
         const nfts = await Nft.find();
         redisClient.setex("nfts", 600, JSON.stringify(nfts));
+        res.json(nft);
     }
     process.env.PROCESSED_REQUESTS += 1;
+})
+
+router.delete("/:id", (req, res) => {
+    Nft.findOneAndDelete({ _id: req.params.id }, (err, data) => {
+        if (err) {
+            res.status(500).json({ message: "Unable to remove nft from list!" });
+        }
+        res.json(data);
+    });
 })
 
 module.exports = router;

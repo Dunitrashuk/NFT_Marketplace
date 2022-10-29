@@ -35,4 +35,8 @@ router.post('/addUser', async (req, res) => {
     process.env.PROCESSED_REQUESTS += 1;
 });
 
+router.patch('/:username', async (req, res) => {
+
+})
+
 module.exports = router;

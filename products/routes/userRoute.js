@@ -36,7 +36,12 @@ router.post('/addUser', async (req, res) => {
 });
 
 router.patch('/:username', async (req, res) => {
-
+    User.findOneAndUpdate({ username: req.params.username }, { funds: req.body.funds, nfts: req.body.nfts }, (err, data) => {
+        if (err) {
+            res.status(500).json({ message: "Unable to update user info!" });
+        }
+    });
 })
+
 
 module.exports = router;

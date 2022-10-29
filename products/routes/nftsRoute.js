@@ -22,6 +22,17 @@ router.get('/', cache, async (req, res) => {
     process.env.PROCESSED_REQUESTS += 1;
 });
 
+
+// ENDPOINT /nfts/:id
+router.delete("/:id", (req, res) => {
+    Nft.findOneAndDelete({ _id: req.params.id }, (err, data) => {
+        if (err) {
+            res.status(500).json({ message: "Unable to remove nft from list!" });
+        }
+        res.json(data);
+    });
+})
+
 //ENDPOINT /nfts/listNft
 router.post('/listNft', verify, async (req, res) => {
     let user = await User.findOne({ username: req.headers['username'] });
@@ -29,11 +40,9 @@ router.post('/listNft', verify, async (req, res) => {
         return nft._id == req.body._id
     });
 
-
     let nftsList = await user.nfts.filter(nft => {
         return nft._id.toString() !== req.body._id
     });
-
 
     //place nft in nfts list
     const nft = new Nft({
@@ -77,8 +86,8 @@ router.get('/buyNft', verify, async (req, res) => {
     //check if user has enough funds
     if (userFunds < nftPrice) {
         res.json({ message: "Not enough funds!" })
-        // } else if (user.username === owner.username) {
-        //     res.json({ message: "Cannot buy your own NFT!" });
+    } else if (user.username === owner.username) {
+        res.json({ message: "Cannot buy your own NFT!" });
     } else {
 
         nft.owner = user.username;
@@ -98,21 +107,15 @@ router.get('/buyNft', verify, async (req, res) => {
             });
         }
 
-        // add nft to user
-        User.findOneAndUpdate({ username: user.username }, { funds: user.funds, nfts: user.nfts }, (err, data) => {
-            if (err) {
-                res.status(500).json({ message: "Unable to update user info!" });
-            }
-        });
-
-
+        //TASK DISTRIBUTION
+        //add nft to user
+        axios.patch(`http://localhost:8000/nftsService/users/${user.username}`, { funds: user.funds, nfts: user.nfts });
 
         //remove nft from nfts list
         await axios.delete(`http://localhost:8000/nftsService/nfts/${req.body._id}`);
 
-        // add updated nfts list to cache
-        // some weird problem happens here, n eed to fix it later
 
+        // add updated nfts list to cache
         const nfts = await Nft.find();
         redisClient.setex("nfts", 600, JSON.stringify(nfts));
         res.json(nft);
@@ -120,13 +123,5 @@ router.get('/buyNft', verify, async (req, res) => {
     process.env.PROCESSED_REQUESTS += 1;
 })
 
-router.delete("/:id", (req, res) => {
-    Nft.findOneAndDelete({ _id: req.params.id }, (err, data) => {
-        if (err) {
-            res.status(500).json({ message: "Unable to remove nft from list!" });
-        }
-        res.json(data);
-    });
-})
 
 module.exports = router;

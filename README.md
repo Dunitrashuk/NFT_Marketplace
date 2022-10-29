@@ -1,4 +1,7 @@
-﻿# FAF.PAD16.2 Autumn 2022
+﻿# System Design
+![alt text](https://github.com/Dunitrashuk/PAD_Lab1/System_Design.png?raw=true)
+
+# FAF.PAD16.2 Autumn 2022
 
 # Lab 1: Web Proxy
 

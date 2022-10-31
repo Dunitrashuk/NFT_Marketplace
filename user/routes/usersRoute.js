@@ -11,17 +11,19 @@ router.get('/', verify, async (req, res) => {
     } catch (err) {
         res.json(err);
     }
+    process.env.PROCESSED_REQUESTS += 1;
 })
 
 //ENDPOINT /users/:username
 router.get('/:username', verify, async (req, res) => {
-    User.findOne({ username: new RegExp('^' + req.params.username + '$', "i") }, (err, doc) => {
+    User.findOne({ username: req.params.username }, (err, doc) => {
         if (err)
-            res.send(err);
+            res.json({ error: err });
         else {
             res.json(doc)
         }
     });
+    process.env.PROCESSED_REQUESTS += 1;
 })
 
 

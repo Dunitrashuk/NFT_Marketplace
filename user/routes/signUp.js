@@ -33,6 +33,7 @@ router.post('/', async (req, res) => {
     } catch (err) {
         res.status(400).send(err);
     }
+    process.env.PROCESSED_REQUESTS += 1;
 })
 
 module.exports = router;

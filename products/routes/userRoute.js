@@ -2,9 +2,10 @@ const express = require('express');
 const axios = require('axios');
 const router = express.Router();
 const User = require('../models/User');
+const verify = require('../middlewares/verifyToken');
 
 // ENDPOINT /user
-router.get('/', async (req, res) => {
+router.get('/', verify, async (req, res) => {
     try {
         const users = await User.find();
         res.json(users);
@@ -20,7 +21,6 @@ router.post('/addUser', async (req, res) => {
 
     // Save user in nfts DB
     const user = new User({
-        client_id: req.body.client_id,
         username: req.body.username,
         funds: `${Math.floor(Math.random() * (50 - 1) + 1)} ETH`,
         nfts: []

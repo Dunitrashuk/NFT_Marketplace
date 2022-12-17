@@ -62,7 +62,7 @@ async def signUp(user: User):
     user.password = pwd_context.hash(user.password)
 
     # post request to nft's db to save user with funds
-    requests.post('http://localhost:5000/nftsService/users/addUser',
+    requests.post('http://gateway:5000/nftsService/users/addUser',
                   json={
                       "username": user.username})
 

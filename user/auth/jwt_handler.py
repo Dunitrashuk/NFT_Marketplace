@@ -6,8 +6,9 @@ JWT_SECRET = config("TOKEN_SECRET")
 JWT_ALGORITHM = config("algorithm")
 
 
-def token_response(token: str):
+def token_response(username: str, token: str):
     return {
+        "username": username,
         "auth-token": token
     }
 
@@ -18,7 +19,7 @@ def signJWT(username: str):
         "expiry": time.time() + 600
     }
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
-    return token_response(token)
+    return token_response(username, token)
 
 
 def decodeJWT(token: str):

@@ -1,0 +1,45 @@
+version: "3.8"
+services:
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    ports:
+      - 5000:5000
+
+  user-service:
+    build: ./user
+    container_name: user-service
+    environment:
+      MONGO_URI: mongodb+srv://dunitrashuk:pad-lab1@user.kfbkylr.mongodb.net/?retryWrites=true&w=majority
+    ports:
+      - 8000:8000
+    depends_on:
+      - mongo
+
+  nfts-service:
+    build: ./products
+    container_name: nfts-service
+    environment:
+      REDIS_URL: redis://redis
+      MONGODB_URI: mongodb+srv://dunitrashuk:pad-lab1@products.i39ry2g.mongodb.net/?retryWrites=true&w=majority
+    ports:
+      - 8002:8002
+    links:
+      - mongo
+      - redis
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - 27017:27017
+
+  redis:
+    image: redis:6.2-alpine
+    container_name: redis
+    expose:
+      - 6379
+
+volumes:
+  mongo_data:

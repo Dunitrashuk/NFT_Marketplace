@@ -7,7 +7,7 @@ const cache = require('../middlewares/cache');
 const axios = require('axios');
 const Redis = require('redis');
 
-const redisClient = Redis.createClient();
+const redisClient = Redis.createClient(process.env.REDIS_URL);
 
 
 // ENDPOINT /nfts
@@ -109,10 +109,10 @@ router.get('/buyNft', verify, async (req, res) => {
 
         //TASK DISTRIBUTION
         //add nft to user
-        axios.patch(`http://localhost:5000/nftsService/users/${user.username}`, { funds: user.funds, nfts: user.nfts });
+        axios.patch(`http://gateway:5000/nftsService/users/${user.username}`, { funds: user.funds, nfts: user.nfts });
 
         //remove nft from nfts list
-        await axios.delete(`http://localhost:5000/nftsService/nfts/${req.body._id}`);
+        await axios.delete(`http://gateway:5000/nftsService/nfts/${req.body._id}`);
 
 
         // add updated nfts list to cache

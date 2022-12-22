@@ -1,5 +1,55 @@
 version: "3.8"
 services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - /etc/prometheus:/config
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+  node_exporter:
+    image: prom/node-exporter:v0.18.1
+    container_name: node_exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    restart: unless-stopped
+
+  cadvisor:
+    image: google/cadvisor:latest
+    container_name: cadvisor
+    # ports:
+    #   - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    restart: unless-stopped
+
   gateway:
     build: ./gateway
     container_name: gateway
@@ -21,7 +71,7 @@ services:
     container_name: nfts-service
     environment:
       REDIS_URL: redis://redis
-      MONGODB_URI: mongodb+srv://dunitrashuk:pad-lab1@products.i39ry2g.mongodb.net/?retryWrites=true&w=majority
+      MONGO_URI: mongodb+srv://dunitrashuk:pad-lab1@products.i39ry2g.mongodb.net/?retryWrites=true&w=majority
     ports:
       - 8002:8002
     links:
@@ -43,3 +93,7 @@ services:
 
 volumes:
   mongo_data:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
